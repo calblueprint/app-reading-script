@@ -3,7 +3,7 @@ from pprint import pprint
 
 # Helper Functions
 
-def assign_members(members, apps, general_app_req, leadership_app_req, seed):
+def assign_members(general_members, leadership, app_list, general_app_req, leadership_app_req, app_req, seed):
     # Create shuffled grouped member/app arrays
     # format: [('aivant', 30), ('alison', 30), ('micah', 50), ...]
     members = [(member, general_app_req) for member in general_members]
@@ -82,14 +82,14 @@ def import_file(filename):
 def export_assignments_together(filename, mem_assignments):
     with open(output_folder + filename, 'w') as f:
         rows = []
-        for member, assignments in assignments.items(): 
+        for member, assignments in mem_assignments.items(): 
             assignments_with_links = ['"=HYPERLINK(""{0}"",""{1}"")"'.format(application_link + str(a), a) for a in assignments]
             rows.append(member + ',' + ','.join(assignments_with_links))
-            f.write('\n'.join(rows))
+        f.write('\n'.join(rows))
     
 def export_assignments_separately(mem_assignments):
     for member, assignments in mem_assignments.items():
-        with open(f"{0}{1}.csv".format(output_folder, member.replace(' ', '_')), 'w') as f:
+        with open("{0}{1}.csv".format(output_folder, member.replace(' ', '_')), 'w') as f:
             assignments_with_links = [f"{a},{application_link + str(a)}" for a in assignments]
             f.write('\n'.join(assignments_with_links))
 
@@ -99,9 +99,9 @@ input_folder = 'input/'
 application_link = 'https://calblueprint.org/admins/student_applications/'
 
 # Parameters
-seed = 42 # change number to get different assignments
-general_app_req = 20
-leadership_app_req = 20
+seed = 42 # change number to get different assignments, None for random
+general_app_req = 25
+leadership_app_req = 25
 app_req = 5
 output_mode = 0 # 0 for single table, 1 for separate tables
 
@@ -109,20 +109,31 @@ output_mode = 0 # 0 for single table, 1 for separate tables
 # Import files
 general_members = import_file('general.txt')
 leadership = import_file('leadership.txt')
-apps = import_file('apps.txt')
+app_list = import_file('apps.txt')
+
+# Overview
+total_apps_to_read_mems = len(general_members) * general_app_req + len(leadership) * leadership_app_req
+total_apps_to_read_apps = len(app_list) * app_req
+print("OVERVIEW\
+    \nThere are {0} general members, {1} leadership members, and {2} applications\
+    \nGeneral Members are reading max {3} apps\
+    \nLeadership members are reading max {4} apps\
+    \nEach app will be read max {5} times\
+    \nIf all apps meet requirements, there will be {6} reads\
+    \nIf all members meet requirements, there will be {7} reads\n".format(len(general_members), len(leadership), len(app_list), general_app_req, leadership_app_req, app_req, total_apps_to_read_apps, total_apps_to_read_mems))
 
 # Create assignments
 print("Assigning Apps...")
-mem_assignments, app_assignments, enough_apps = assign_members(members, apps, general_app_req, leadership_app_req, app_req, seed)
+mem_assignments, app_assignments, enough_apps = assign_members(general_members, leadership, app_list, general_app_req, leadership_app_req, app_req, seed)
 print("Assignment complete!")
 
 # Compute stats
-compute_stats("general member assignments", general_members, mem_assignments, compute_counts=True)
-compute_stats("leadership assignments", leadership, mem_assignments, compute_counts=True)
-compute_stats("application assignments", app_list, app_assignments, compute_counts=True)
+compute_stats("general member assignments", general_members, mem_assignments)
+compute_stats("leadership assignments", leadership, mem_assignments)
+compute_stats("application assignments", app_list, app_assignments)
 
 if not enough_apps:
-    print("NOTE: Not enough apps to complete assignments. Reduce member requirements.")
+    print("NOTE: Not enough apps to complete assignments. Please look at overview and adjust requirements.")
 # Export assignments
 print("Exporting...")
 
