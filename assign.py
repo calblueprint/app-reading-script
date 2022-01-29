@@ -83,8 +83,9 @@ def export_assignments_together(filename, mem_assignments):
     with open(output_folder + filename, 'w') as f:
         rows = []
         for member, assignments in mem_assignments.items(): 
-            assignments_with_links = ['"=HYPERLINK(""{0}"",""{1}"")"'.format(application_link + str(a), a) for a in assignments]
-            rows.append(member + ',' + ','.join(assignments_with_links))
+            # GSHEETS FORMATTING: ['"=HYPERLINK(""{0}"",""{1}"")"'.format(application_link + str(a), a) for a in assignments]
+            assignments_with_links = [str(a) for a in assignments]
+            rows.append(member + ': ' + ','.join(assignments_with_links))
         f.write('\n'.join(rows))
     
 def export_assignments_separately(mem_assignments):
@@ -100,11 +101,10 @@ application_link = 'https://calblueprint.org/admins/student_applications/'
 
 # Parameters
 seed = 42 # change number to get different assignments, None for random
-general_app_req = 25
-leadership_app_req = 25
+general_app_req = 20
+leadership_app_req = 20
 app_req = 5
 output_mode = 0 # 0 for single table, 1 for separate tables
-
 
 # Import files
 general_members = import_file('general.txt')
