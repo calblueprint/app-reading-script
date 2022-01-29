@@ -8,4 +8,4 @@ A script that assigns apps to members for app reading
       
 #### 2. Run `assign.py`
 #### 3. `output.csv` appears in output folder
-Currently formatted to be easily copied + pasted into Airtable. Uncomment line 86 in `assign.py` to switch back to Google Sheets.
+Currently formatted to be easily copied + pasted into Airtable. Look at line 86 in `assign.py` to switch formatting back to Sheets-friendly.
